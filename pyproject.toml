@@ -1,0 +1,44 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "searchit"
+version = "1.0.0"
+description = "Searchit - A metasearch library for simple and distributed search."
+readme = "README.md"
+requires-python = ">=3.8"
+license = "MIT"
+keywords = ["search", "metasearch", "google", "bing", "duckduckgo", "yahoo", "crawler", "scraper"]
+authors = [
+  { name = "Searchit Team", email = "pr086832@gmail.com" },
+]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+]
+dependencies = [
+  "click>=8.0.0",
+  "lxml>=4.9.0",
+  "primp>=0.5.0",
+  "fake-useragent>=1.4.0",
+  "httpx>=0.27.0",
+  "httpcore>=1.0.0",
+  "h2>=4.0.0",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest",
+  "pytest-asyncio",
+]
+
+[project.scripts]
+searchit = "searchit.cli:safe_entry_point"
+
+[project.urls]
+Homepage = "https://github.com/OE-Void/searchit"
+Issues = "https://github.com/OE-Void/searchit/issues"
