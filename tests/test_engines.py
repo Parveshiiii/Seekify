@@ -1,6 +1,6 @@
 import logging
 import pytest
-from searchit import Search
+from seekify import Search
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

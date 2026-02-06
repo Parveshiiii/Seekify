@@ -4,7 +4,7 @@ include LEGAL_NOTICE.md
 include changelog.md
 include pyproject.toml
 recursive-include docs *
-recursive-include searchit *.py
+recursive-include seekify *.py
 global-exclude *.py[cod]
 global-exclude __pycache__
 global-exclude .DS_Store

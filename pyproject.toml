@@ -3,15 +3,15 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "searchit"
+name = "seekify"
 version = "1.0.0"
-description = "Searchit - A metasearch library for simple and distributed search."
+description = "Seekify - A metasearch library for simple and distributed search."
 readme = "README.md"
 requires-python = ">=3.8"
 license = "MIT"
 keywords = ["search", "metasearch", "google", "bing", "duckduckgo", "yahoo", "crawler", "scraper"]
 authors = [
-  { name = "Searchit Team", email = "pr086832@gmail.com" },
+  { name = "Seekify Team", email = "pr086832@gmail.com" },
 ]
 classifiers = [
   "Development Status :: 5 - Production/Stable",
@@ -37,8 +37,8 @@ test = [
 ]
 
 [project.scripts]
-searchit = "searchit.cli:safe_entry_point"
+seekify = "seekify.cli:safe_entry_point"
 
 [project.urls]
-Homepage = "https://github.com/OE-Void/searchit"
-Issues = "https://github.com/OE-Void/searchit/issues"
+Homepage = "https://github.com/Parveshiiii/seekify"
+Issues = "https://github.com/Parveshiiii/seekify/issues"

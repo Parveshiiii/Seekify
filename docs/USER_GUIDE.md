@@ -5,7 +5,7 @@
 The main entry point is the `Search` class. It manages the connection logic, proxies, and threading for various search backends.
 
 ```python
-from searchit import Search
+from seekify import Search
 ```
 
 It is recommended to use `Search` as a context manager (`with` statement) to ensure resources are cleaned up properly.
@@ -71,7 +71,7 @@ with Search() as s:
 
 ## Proxies
 
-Searchit supports proxies to prevent rate limiting.
+Seekify supports proxies to prevent rate limiting.
 
 ```python
 # SOCKS5 proxy (e.g., Tor)

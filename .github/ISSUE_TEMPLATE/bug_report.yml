@@ -1,5 +1,5 @@
 name: Bug Report
-description: Create a report to help us improve Searchit
+description: Create a report to help us improve Seekify
 title: "[BUG] "
 labels: ["bug"]
 body:
@@ -23,7 +23,7 @@ body:
       label: Reproduction Steps
       description: Steps to reproduce the behavior.
       placeholder: |
-        1. Import searchit
+        1. Import seekify
         2. Run '...'
         3. See error
     validations:
@@ -32,7 +32,7 @@ body:
   - type: input
     id: version
     attributes:
-      label: Searchit Version
+      label: Seekify Version
       description: Which version are you using? (e.g. 9.10.0)
     validations:
       required: true

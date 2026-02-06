@@ -14,5 +14,5 @@ COPY . .
 RUN pip install --no-cache-dir .
 
 # Default command matches the CLI entry point
-ENTRYPOINT ["searchit"]
+ENTRYPOINT ["seekify"]
 CMD ["--help"]

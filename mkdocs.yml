@@ -1,7 +1,7 @@
-site_name: Searchit Documentation
+site_name: Seekify Documentation
 site_description: Your Complete Toolkit for Search.
-repo_url: https://github.com/OE-Void/searchit
-repo_name: searchit/searchit
+repo_url: https://github.com/Parveshiiii/Seekify
+repo_name: seekify/seekify
 
 theme:
   name: material

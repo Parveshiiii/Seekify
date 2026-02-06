@@ -1,4 +1,4 @@
-# Contributing to Searchit
+# Contributing to Seekify
 
 First off, thanks for taking the time to contribute! ❤️
 
@@ -16,13 +16,13 @@ All types of contributions are encouraged and valued. See the [Table of Contents
 
 ## I Have a Question
 
-If you want to ask a question, we assume that you have read the available [Documentation](https://github.com/OE-Void/searchit).
+If you want to ask a question, we assume that you have read the available [Documentation](https://github.com/Parveshiiii/seekify).
 
-Before you ask a question, it is best to search for existing [Issues](https://github.com/OE-Void/searchit/issues) that might help you. In case you have found a suitable issue and still need clarification, you can write your question in this issue. It is also advisable to search the internet for answers first.
+Before you ask a question, it is best to search for existing [Issues](https://github.com/Parveshiiii/seekify/issues) that might help you. In case you have found a suitable issue and still need clarification, you can write your question in this issue. It is also advisable to search the internet for answers first.
 
 If you then still feel the need to ask a question and need clarification, we recommend the following:
 
-- Open an [Issue](https://github.com/OE-Void/searchit/issues/new).
+- Open an [Issue](https://github.com/Parveshiiii/seekify/issues/new).
 - Provide as much context as you can about what you're running into.
 - Provide project and platform versions (python version, OS, etc), depending on what seems relevant.
 
@@ -31,7 +31,7 @@ If you then still feel the need to ask a question and need clarification, we rec
 ### Reporting Bugs
 
 - **Use the provided template.**
-- **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/OE-Void/searchit/issues).
+- **Ensure the bug was not already reported** by searching on GitHub under [Issues](https://github.com/Parveshiiii/seekify/issues).
 - If you're unable to find an open issue addressing the problem, open a new one. Be sure to include a **title and clear description**, as much relevant information as possible, and a **code sample** or an **executable test case** demonstrating the expected behavior that is not occurring.
 
 ### Suggesting Enhancements

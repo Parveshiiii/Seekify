@@ -4,14 +4,14 @@ import pytest
 
 def run_cli_command(args):
     """Run CLI command and return stdout, stderr, and return code."""
-    cmd = [sys.executable, "-m", "searchit.cli"] + args
+    cmd = [sys.executable, "-m", "seekify.cli"] + args
     result = subprocess.run(cmd, capture_output=True, text=True)
     return result
 
 def test_cli_version():
     result = run_cli_command(["version"])
     assert result.returncode == 0
-    assert "9.10.0" in result.stdout
+    assert "1.0.0" in result.stdout
 
 def test_cli_text_search():
     # Test basic text search with a specific backend
