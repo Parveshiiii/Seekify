@@ -4,10 +4,10 @@ build-backend = "hatchling.build"
 
 [project]
 name = "seekify"
-version = "1.0.0"
+version = "1.0.1"
 description = "Seekify - A metasearch library for simple and distributed search."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = "MIT"
 keywords = ["search", "metasearch", "google", "bing", "duckduckgo", "yahoo", "crawler", "scraper"]
 authors = [
