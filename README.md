@@ -31,8 +31,8 @@
 <hr/>
 
 > [!NOTE]
-> Seekify supports over 9 major search engines including: Google, Bing, DuckDuckGo, Brave, Yahoo, Yandex, Mojeek, Grokipedia, and Wikipedia. All providers follow similar usage patterns with consistent interfaces.
-
+> 1. Seekify supports over 9 major search engines including: Google, Bing, DuckDuckGo, Brave, Yahoo, Yandex, Mojeek, Grokipedia, and Wikipedia. All providers follow similar usage patterns with consistent interfaces.
+> 2. Search-IT name was not avilable in pypi so we rebranded it.
 <hr/>
 
 ## 🌟 Features
