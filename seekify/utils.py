@@ -5,6 +5,7 @@ import unicodedata
 from contextlib import suppress
 from datetime import datetime, timezone
 from html import unescape
+from typing import Optional, Union
 from urllib.parse import unquote
 
 from .exceptions import SearchException
@@ -60,11 +61,11 @@ def _normalize_text(raw: str) -> str:
     return " ".join(text.split())
 
 
-def _normalize_date(date: int | str) -> str:
+def _normalize_date(date: Union[int, str]) -> str:
     """Normalize date from integer to ISO format if applicable."""
     return datetime.fromtimestamp(date, timezone.utc).isoformat() if isinstance(date, int) else date
 
 
-def _expand_proxy_tb_alias(proxy: str | None) -> str | None:
+def _expand_proxy_tb_alias(proxy: Optional[str]) -> Optional[str]:
     """Expand "tb" to a full proxy URL if applicable."""
     return "socks5h://127.0.0.1:9150" if proxy == "tb" else proxy

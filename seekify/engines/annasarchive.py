@@ -1,7 +1,7 @@
 """Anna's Archive search engine implementation."""
 
 from collections.abc import Mapping
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Optional
 
 from seekify.base import BaseSearchEngine
 from seekify.results import BooksResult
@@ -32,7 +32,7 @@ class AnnasArchive(BaseSearchEngine[BooksResult]):
         query: str,
         region: str,  # noqa: ARG002
         safesearch: str,  # noqa: ARG002
-        timelimit: str | None,  # noqa: ARG002
+        timelimit: Optional[str],  # noqa: ARG002
         page: int = 1,
         **kwargs: str,  # noqa: ARG002
     ) -> dict[str, Any]:

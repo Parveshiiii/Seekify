@@ -6,7 +6,7 @@ A metasearch library that aggregates results from diverse web search services.
 import importlib
 import logging
 import threading
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, cast, Optional, Type
 
 __version__ = "1.0.0"
 __all__ = ("Search",)
@@ -22,10 +22,10 @@ logging.getLogger("ddgs").addHandler(logging.NullHandler())
 
 class _ProxyMeta(type):
     _lock: threading.Lock = threading.Lock()
-    _real_cls: type["Search"] | None = None
+    _real_cls: Optional[Type["Search"]] = None
 
     @classmethod
-    def _load_real(cls) -> type["Search"]:
+    def _load_real(cls) -> Type["Search"]:
         if cls._real_cls is None:
             with cls._lock:
                 if cls._real_cls is None:

@@ -2,7 +2,7 @@
 
 import json
 import logging
-from typing import Any
+from typing import Any, Optional
 from urllib.parse import quote
 
 from seekify.base import BaseSearchEngine
@@ -27,7 +27,7 @@ class Wikipedia(BaseSearchEngine[TextResult]):
         query: str,
         region: str,
         safesearch: str,  # noqa: ARG002
-        timelimit: str | None,  # noqa: ARG002
+        timelimit: Optional[str],  # noqa: ARG002
         page: int = 1,  # noqa: ARG002
         **kwargs: str,  # noqa: ARG002
     ) -> dict[str, Any]:

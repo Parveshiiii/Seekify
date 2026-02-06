@@ -6,7 +6,7 @@ from concurrent.futures import ThreadPoolExecutor, wait
 from math import ceil
 from random import random, shuffle
 from types import TracebackType
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Optional, Union, Type
 
 from .base import BaseSearchEngine
 from .engines import ENGINES
@@ -41,10 +41,10 @@ class Search:
 
     """
 
-    threads: ClassVar[int | None] = None
-    _executor: ClassVar[ThreadPoolExecutor | None] = None
+    threads: ClassVar[Optional[int]] = None
+    _executor: ClassVar[Optional[ThreadPoolExecutor]] = None
 
-    def __init__(self, proxy: str | None = None, timeout: int | None = 5, *, verify: bool | str = True) -> None:
+    def __init__(self, proxy: Optional[str] = None, timeout: Optional[int] = 5, *, verify: Union[bool, str] = True) -> None:
         self._proxy = _expand_proxy_tb_alias(proxy) or os.environ.get("SEEKIFY_PROXY")
         self._timeout = timeout
         self._verify = verify
@@ -58,9 +58,9 @@ class Search:
 
     def __exit__(
         self,
-        exc_type: type[BaseException] | None = None,
-        exc_val: BaseException | None = None,
-        exc_tb: TracebackType | None = None,
+        exc_type: Optional[Type[BaseException]] = None,
+        exc_val: Optional[BaseException] = None,
+        exc_tb: Optional[TracebackType] = None,
     ) -> None:
         """Exit the context manager."""
 
@@ -141,12 +141,12 @@ class Search:
         self,
         category: str,
         query: str,
-        keywords: str | None = None,  # deprecated
+        keywords: Optional[str] = None,  # deprecated
         *,
         region: str = "us-en",
         safesearch: str = "moderate",
-        timelimit: str | None = None,
-        max_results: int | None = 10,
+        timelimit: Optional[str] = None,
+        max_results: Optional[int] = 10,
         page: int = 1,
         backend: str = "auto",
         **kwargs: str,

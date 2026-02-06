@@ -2,7 +2,7 @@
 
 from collections.abc import Mapping
 from secrets import token_urlsafe
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Optional
 from urllib.parse import unquote_plus
 
 from seekify.base import BaseSearchEngine
@@ -37,7 +37,7 @@ class Yahoo(BaseSearchEngine[TextResult]):
         query: str,
         region: str,  # noqa: ARG002
         safesearch: str,  # noqa: ARG002
-        timelimit: str | None,
+        timelimit: Optional[str],
         page: int = 1,
         **kwargs: str,  # noqa: ARG002
     ) -> dict[str, Any]:

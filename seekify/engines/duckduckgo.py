@@ -1,7 +1,7 @@
 """Duckduckgo search engine implementation."""
 
 from collections.abc import Mapping
-from typing import Any, ClassVar, TypeVar
+from typing import Any, ClassVar, TypeVar, Optional
 
 from fake_useragent import UserAgent
 
@@ -29,7 +29,7 @@ class Duckduckgo(BaseSearchEngine[TextResult]):
 
     headers: ClassVar[dict[str, str]] = {"User-Agent": ua.random}
 
-    def __init__(self, proxy: str | None = None, timeout: int | None = None, *, verify: bool = True) -> None:
+    def __init__(self, proxy: Optional[str] = None, timeout: Optional[int] = None, *, verify: bool = True) -> None:
         """Temporary, delete when HttpClient is fixed."""
         self.client = DuckDuckGoClient(headers=self.headers, proxy=proxy, timeout=timeout, verify=verify)  # type: ignore[assignment]
         self.results: list[T] = []  # type: ignore[valid-type]
@@ -39,7 +39,7 @@ class Duckduckgo(BaseSearchEngine[TextResult]):
         query: str,
         region: str,
         safesearch: str,  # noqa: ARG002
-        timelimit: str | None,
+        timelimit: Optional[str],
         page: int = 1,
         **kwargs: str,  # noqa: ARG002
     ) -> dict[str, Any]:

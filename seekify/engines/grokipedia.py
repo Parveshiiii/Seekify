@@ -2,7 +2,7 @@
 
 import json
 import logging
-from typing import Any
+from typing import Any, Optional
 
 from seekify.base import BaseSearchEngine
 from seekify.results import TextResult
@@ -26,7 +26,7 @@ class Grokipedia(BaseSearchEngine[TextResult]):
         query: str,
         region: str,  # noqa: ARG002
         safesearch: str,  # noqa: ARG002
-        timelimit: str | None,  # noqa: ARG002
+        timelimit: Optional[str],  # noqa: ARG002
         page: int = 1,  # noqa: ARG002
         **kwargs: str,  # noqa: ARG002
     ) -> dict[str, Any]:

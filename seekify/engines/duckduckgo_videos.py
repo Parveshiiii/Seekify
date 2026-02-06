@@ -2,7 +2,7 @@
 
 import json
 from collections.abc import Mapping
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Optional
 
 from seekify.base import BaseSearchEngine
 from seekify.results import VideosResult
@@ -45,7 +45,7 @@ class DuckduckgoVideos(BaseSearchEngine[VideosResult]):
         query: str,
         region: str,
         safesearch: str,
-        timelimit: str | None,
+        timelimit: Optional[str],
         page: int = 1,
         **kwargs: str,
     ) -> dict[str, Any]:

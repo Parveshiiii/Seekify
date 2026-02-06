@@ -2,7 +2,7 @@
 
 import logging
 from secrets import choice
-from typing import Any, Final, Literal, get_args
+from typing import Any, Final, Literal, get_args, Optional, Union
 
 import primp
 
@@ -38,14 +38,14 @@ class Client:
     ])  # fmt: skip
     _impersonates_os: Final = get_args(Literal["macos", "linux", "windows"])
 
-    def __init__(self, proxy: str | None = None, timeout: int | None = 10, *, verify: bool | str = True) -> None:
+    def __init__(self, proxy: Optional[str] = None, timeout: Optional[int] = 10, *, verify: Union[bool, str] = True) -> None:
         """Initialize the Client object.
 
         Args:
             proxy (str, optional): proxy for the HTTP client, supports http/https/socks5 protocols.
                 example: "http://user:pass@example.com:3128". Defaults to None.
             timeout (int, optional): Timeout value for the HTTP client. Defaults to 10.
-            verify: (bool | str):  True to verify, False to skip, or a str path to a PEM file. Defaults to True.
+            verify: (Union[bool, str]):  True to verify, False to skip, or a str path to a PEM file. Defaults to True.
 
         """
         self.client = primp.Client(

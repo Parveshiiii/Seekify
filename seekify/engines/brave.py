@@ -1,7 +1,7 @@
 """Brave search engine implementation."""
 
 from collections.abc import Mapping
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Optional
 
 from seekify.base import BaseSearchEngine
 from seekify.results import TextResult
@@ -29,7 +29,7 @@ class Brave(BaseSearchEngine[TextResult]):
         query: str,
         region: str,
         safesearch: str,
-        timelimit: str | None,
+        timelimit: Optional[str],
         page: int = 1,
         **kwargs: str,  # noqa: ARG002
     ) -> dict[str, Any]:

@@ -3,14 +3,14 @@
 import base64
 from collections.abc import Mapping
 from time import time
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Optional
 from urllib.parse import parse_qs, urlparse
 
 from seekify.base import BaseSearchEngine
 from seekify.results import TextResult
 
 
-def unwrap_bing_url(raw_url: str) -> str | None:
+def unwrap_bing_url(raw_url: str) -> Optional[str]:
     """Decode the Bing-wrapped raw_url to extract the original url."""
     parsed = urlparse(raw_url)
     u_vals = parse_qs(parsed.query).get("u", [])
@@ -52,7 +52,7 @@ class Bing(BaseSearchEngine[TextResult]):
         query: str,
         region: str,
         safesearch: str,  # noqa: ARG002
-        timelimit: str | None,
+        timelimit: Optional[str],
         page: int = 1,
         **kwargs: str,  # noqa: ARG002
     ) -> dict[str, Any]:

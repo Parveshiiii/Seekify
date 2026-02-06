@@ -1,10 +1,9 @@
-"""Base class for search engines."""
-
+from __future__ import annotations
 import logging
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from functools import cached_property
-from typing import Any, ClassVar, Generic, Literal, TypeVar
+from typing import Any, ClassVar, Generic, Literal, TypeVar, Optional, Union
 
 from lxml import html
 from lxml.etree import HTMLParser as LHTMLParser
@@ -32,7 +31,7 @@ class BaseSearchEngine(ABC, Generic[T]):
     elements_xpath: ClassVar[Mapping[str, str]]
     elements_replace: ClassVar[Mapping[str, str]]
 
-    def __init__(self, proxy: str | None = None, timeout: int | None = None, *, verify: bool | str = True) -> None:
+    def __init__(self, proxy: Optional[str] = None, timeout: Optional[int] = None, *, verify: Union[bool, str] = True) -> None:
         self.client = Client(proxy=proxy, timeout=timeout, verify=verify)
         self.results: list[T] = []
 
@@ -54,14 +53,14 @@ class BaseSearchEngine(ABC, Generic[T]):
         query: str,
         region: str,
         safesearch: str,
-        timelimit: str | None,
+        timelimit: Optional[str],
         page: int,
         **kwargs: str,
     ) -> dict[str, Any]:
         """Build a payload for the search request."""
         raise NotImplementedError
 
-    def request(self, *args: Any, **kwargs: Any) -> str | None:  # noqa: ANN401
+    def request(self, *args: Any, **kwargs: Any) -> Optional[str]:  # noqa: ANN401
         """Make a request to the search engine."""
         resp = self.client.request(*args, **kwargs)
         if resp.status_code == 200:
@@ -111,10 +110,10 @@ class BaseSearchEngine(ABC, Generic[T]):
         query: str,
         region: str = "us-en",
         safesearch: str = "moderate",
-        timelimit: str | None = None,
+        timelimit: Optional[str] = None,
         page: int = 1,
         **kwargs: str,
-    ) -> list[T] | None:
+    ) -> Optional[list[T]]:
         """Search the engine."""
         payload = self.build_payload(
             query=query, region=region, safesearch=safesearch, timelimit=timelimit, page=page, **kwargs

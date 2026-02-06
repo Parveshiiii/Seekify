@@ -2,7 +2,7 @@
 
 from collections.abc import Mapping
 from random import SystemRandom
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Optional
 
 from seekify.base import BaseSearchEngine
 from seekify.results import TextResult
@@ -65,7 +65,7 @@ class Google(BaseSearchEngine[TextResult]):
         query: str,
         region: str,
         safesearch: str,
-        timelimit: str | None,
+        timelimit: Optional[str],
         page: int = 1,
         **kwargs: str,  # noqa: ARG002
     ) -> dict[str, Any]:

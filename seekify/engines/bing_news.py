@@ -4,7 +4,7 @@ import re
 from collections.abc import Mapping
 from contextlib import suppress
 from datetime import datetime, timedelta, timezone
-from typing import Any, ClassVar
+from typing import Any, ClassVar, Optional
 
 from seekify.base import BaseSearchEngine
 from seekify.results import NewsResult
@@ -55,7 +55,7 @@ class BingNews(BaseSearchEngine[NewsResult]):
         query: str,
         region: str,
         safesearch: str,  # noqa: ARG002
-        timelimit: str | None,
+        timelimit: Optional[str],
         page: int = 1,
         **kwargs: str,  # noqa: ARG002
     ) -> dict[str, Any]:
