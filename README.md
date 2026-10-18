@@ -1,196 +1,189 @@
 <div align="center">
   <h1>Seekify</h1>
-
-  <p><strong>Your Complete Toolkit for Search</strong></p>
-
-  <p>
-    Access diverse search engines, retrieve rich multimedia content, and bypass rate limits – all through one unified library.
-  </p>
-
-  <!-- Badges -->
+  <p><strong>Web search and page context for LLM applications</strong></p>
+  <p>Search the web, collect useful page text, and pass structured results to your own LLM workflow.</p>
   <p>
     <a href="https://pypi.org/project/seekify/"><img src="https://img.shields.io/pypi/v/seekify.svg?style=flat-square&logo=pypi&label=PyPI" alt="PyPI Version"></a>
     <a href="https://github.com/Parveshiiii/seekify/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/Parveshiiii/seekify/ci.yml?branch=main&style=flat-square&logo=github&label=Tests" alt="Tests"></a>
     <a href="https://pypi.org/project/seekify/"><img src="https://img.shields.io/pypi/pyversions/seekify?style=flat-square&logo=python" alt="Python Version"></a>
     <a href="https://github.com/Parveshiiii/seekify/blob/main/LICENSE.md"><img src="https://img.shields.io/badge/License-MIT-blue.svg?style=flat-square" alt="License"></a>
   </p>
+  <img src="assets/banner.webp" alt="Seekify — web search and page context for LLM applications" width="100%">
 </div>
 
-<hr/>
+## Why Seekify?
 
-## 📋 Table of Contents
+Seekify is a Python metasearch library for applications that need current web
+results without integrating a paid search API. It searches supported public
+search-engine pages and returns consistent Python data structures. No search
+API key is required.
 
-- [🌟 Features](#-features)
-- [⚙️ Installation](#️-installation)
-- [🚀 Quick Start](#-quick-start)
-- [🖥️ Command Line Interface](#️-command-line-interface)
-- [🌐 Supported Engines](#-supported-engines)
-- [🛡️ Proxy Support](#️-proxy-support)
-- [📚 Documentation](#-documentation)
+Use its optional LLM mode to retrieve ranked results and extract readable text
+from up to five result pages in one call. Seekify prepares the search context;
+it does not call an LLM or provide a model API.
 
-<hr/>
+> Search engines may rate-limit requests, change their pages, or restrict
+> automated access. Availability and terms depend on each provider. Seekify
+> cannot guarantee uninterrupted access.
 
-> [!NOTE]
-> 1. Seekify supports over 9 major search engines including: Google, Bing, DuckDuckGo, Brave, Yahoo, Yandex, Mojeek, Grokipedia, and Wikipedia. All providers follow similar usage patterns with consistent interfaces.
-> 2. Search-IT name was not avilable in pypi so we rebranded it.
-<hr/>
+## Features
 
-## 🌟 Features
+- Search across multiple text-search backends through one API.
+- Return structured results with titles, URLs, snippets, source engines, and
+  extracted page text for LLM workflows.
+- Search images, videos, news, and books through dedicated methods.
+- Use a proxy when needed.
+- Work with Python dictionaries that are easy to serialize or load into tools
+  such as Pandas.
 
-<details open>
-<summary><b>Unified Search API</b></summary>
-<p>
-
-- **Text Search:** Aggregated results from Google, Bing, DuckDuckGo, Yahoo, Yandex, and more.
-- **Rich Media:** Retrieve images, videos, news, and books through dedicated endpoints.
-- **Consistent Format:** All results differ in source but share a common, easy-to-parse structure.
-</p>
-</details>
-
-<details open>
-<summary><b>Advanced Capabilities</b></summary>
-<p>
-
-- **Zero Config:** No API keys required. It just works.
-- **Proxy Support:** Fully compatible with HTTP and SOCKS5 proxies to manage identity and avoid rate limits.
-- **Data Science Ready:** Returns data structures that easily convert to Pandas DataFrames for analysis.
-- **Robust CLI:** Powerful command-line tools for quick lookups, downloads, and data exports.
-</p>
-</details>
-
-<hr/>
-
-## ⚙️ Installation
-
-Seekify supports multiple installation methods to fit your workflow:
-
-### 📦 Standard Installation
+## Installation
 
 ```bash
-# Install from PyPI
 pip install -U seekify
-
-# Install with valid HTTPS/HTTP2 support
-pip install -U "seekify[http2]"
 ```
 
-### ⚡ UV Package Manager (Recommended)
-
-[UV](https://github.com/astral-sh/uv) is a fast Python package manager. Seekify has full UV support:
+Or install with [uv](https://docs.astral.sh/uv/):
 
 ```bash
-# Install UV first (if not already installed)
-pip install uv
-
-# Install Seekify with UV
 uv add seekify
 ```
 
-<hr/>
+## Quick start
 
-## 🚀 Quick Start
-
-### Python Script
-
-Seekify is designed to be intuitive. Here is how to perform a simple text search:
+### Search results
 
 ```python
 from seekify import Search
 
-with Search() as s:
-    results = s.text("python programming", max_results=5)
-    for r in results:
-        print(f"{r['title']} - {r['href']}")
+with Search() as search:
+    results = search.text("python programming", max_results=5)
+
+for result in results:
+    print(result["title"], result["href"])
 ```
 
-### Jupyter Notebook
+By default, text search returns a list of dictionaries. Select a backend with
+`backend="google"` or provide a comma-separated list such as
+`backend="google,bing"`. The default, `backend="auto"`, selects available
+backends automatically.
 
-You can easily collect data into a Pandas DataFrame for analysis:
+### Search with page content for LLMs
+
+Set `llm=True` to get a structured payload with page text for up to five ranked
+results by default. Set `llm_max_pages` to fetch more or fewer pages:
 
 ```python
 from seekify import Search
-import pandas as pd
 
-# Search and create a DataFrame
-with Search() as s:
-    results = s.text("artificial intelligence trends", backend="duckduckgo", max_results=20)
+with Search() as search:
+    payload = search.text(
+        "How do solar panels work?",
+        max_results=10,
+        llm=True,
+        llm_max_pages=8,
+    )
 
-df = pd.DataFrame(results)
-display(df)
+for result in payload["results"]:
+    print(f"[{result['rank']}] {result['title']} — {result['url']}")
+    print(result["content"])
 ```
 
-<hr/>
+The payload is JSON-serializable and follows this shape:
 
-## 🖥️ Command Line Interface
+```json
+{
+  "schema_version": "1.0",
+  "query": "How do solar panels work?",
+  "results": [
+    {
+      "rank": 1,
+      "title": "Solar panels explained",
+      "url": "https://example.com/solar-panels",
+      "snippet": "A short summary from the search engine...",
+      "content": "Readable text extracted from the page...",
+      "content_status": "ok",
+      "sources": ["google", "bing"],
+      "metadata": {}
+    }
+  ]
+}
+```
 
-Seekify includes a powerful CLI for quick queries and data export.
+Page text is capped at 5,000 characters per page. `llm_max_pages` defaults to
+`5`; set it to `0` to skip page fetching or to a higher non-negative integer to
+fetch more ranked results (up to the number returned by the search). Results
+past that limit have `content_status` set to `"not_fetched_limit"`. If a page
+cannot be retrieved, its result reports `"error"` and may include
+`content_error`; one failed page does not fail the search. Page fetching uses
+HTTPX for HTTP requests and lxml to extract readable text from HTML. Only
+public HTTP(S) destinations are fetched, redirects are checked, response data
+is capped, and page downloads run with at most five concurrent workers.
 
-### 🚀 Direct Commands
+The returned payload can be passed to your own model, retrieval, or
+citation-generation code. Seekify does not summarize the pages or generate
+LLM responses. Without `llm=True`, the existing list-of-dictionaries response
+is unchanged. See the [user guide](docs/USER_GUIDE.md#llm-ready-results) for
+the complete field descriptions.
+
+## Other search types
+
+```python
+with Search() as search:
+    images = search.images("mountain landscape", max_results=10)
+    videos = search.videos("python tutorial", max_results=10)
+    news = search.news("renewable energy", max_results=10)
+    books = search.books("machine learning", max_results=10)
+```
+
+## Supported backends
+
+| Search type | Backends |
+|---|---|
+| Text | Bing, Brave, DuckDuckGo, Google, Grokipedia, Mojeek, Yahoo, Yandex, Wikipedia |
+| Images | DuckDuckGo |
+| Videos | DuckDuckGo |
+| News | Bing, DuckDuckGo, Yahoo |
+| Books | Anna's Archive |
+
+The engines available to you may vary as providers update their sites.
+
+## Proxy support
+
+Pass a proxy URL when creating `Search`:
+
+```python
+from seekify import Search
+
+with Search(proxy="socks5h://127.0.0.1:9050") as search:
+    results = search.text("privacy tools")
+```
+
+HTTP and SOCKS5 proxies are supported. See the
+[user guide](docs/USER_GUIDE.md) for more configuration options.
+Providers may still rate-limit proxied requests. When a backend returns HTTP
+429, Seekify raises `RatelimitException` and exposes any `Retry-After` delay
+as `exc.retry_after`; it does not automatically retry that request.
+
+## Command-line interface
 
 ```bash
-# Text Search
-seekify text -q "OpenAI" -m 10
+# Search the web
+seekify text -q "Python programming" -m 10
 
-# Image Search & Download
-seekify images -q "minimalist wallpaper" -m 5 --download --download-directory ./wallpapers
+# Search news and save results as JSON
+seekify news -q "renewable energy" -m 20 -o news.json
 
-# News Search (Export to JSON)
-seekify news -q "tech industry" -m 20 --output news_data.json
+# Search images and download results
+seekify images -q "mountain landscape" -m 5 --download --download-directory ./images
 ```
 
-### 📦 Python Module Execution
+## Documentation
 
-```bash
-python -m seekify.cli text -q "search query"
-```
+- [User guide](docs/USER_GUIDE.md)
+- [Contributing](CONTRIBUTING.md)
+- [Security policy](SECURITY.md)
 
-<hr/>
+## Credits
 
-## 🌐 Supported Engines
-
-The library supports a wide range of backends tailored to specific search types:
-
-<div align="center">
-
-| Search Type | Supported Engines |
-|-------------|-------------------|
-| **Text**    | Bing, Brave, DuckDuckGo, Google, Grokipedia, Mojeek, Yahoo, Yandex, Wikipedia |
-| **Images**  | DuckDuckGo |
-| **Videos**  | DuckDuckGo |
-| **News**    | Bing, DuckDuckGo, Yahoo |
-| **Books**   | Anna's Archive |
-
-</div>
-
-<hr/>
-
-## 🛡️ Proxy Support
-
-Avoid rate limits and IP bans by routing traffic through a proxy.
-
-```python
-from seekify import Search
-
-# Using a SOCKS5 proxy (e.g., Tor)
-s = Search(proxy="socks5h://127.0.0.1:9050")
-
-# Using an authenticated HTTP proxy
-s = Search(proxy="http://user:password@proxy_ip:port")
-
-# Then use normal search methods
-results = s.text("privacy tools")
-```
-
-<hr/>
-
-## 📚 Documentation
-
-For comprehensive usage guides and advanced configuration, please refer to the [docs](./docs) directory.
-
-## 👏 Credits
-
-- Based on the work of [deedy5/ddgs](https://github.com/deedy5/ddgs) (formerly Dux), which is no longer maintained. We have expanded upon this foundation with new engines, features, and modernized tooling.
-
-<div align="center">
-  <p>Made with ❤️ by the Seekify team</p>
-</div>
+Seekify builds on work from [deedy5/ddgs](https://github.com/deedy5/ddgs),
+formerly known as Dux, and extends it with additional engines and features.

@@ -10,7 +10,7 @@ import h2
 import httpcore
 import httpx
 
-from .exceptions import SearchException, TimeoutException
+from .exceptions import RatelimitException, SearchException, TimeoutException
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -23,12 +23,13 @@ random = SystemRandom()
 class Response:
     """HTTP response."""
 
-    __slots__ = ("content", "status_code", "text")
+    __slots__ = ("content", "headers", "status_code", "text")
 
-    def __init__(self, status_code: int, content: bytes, text: str) -> None:
+    def __init__(self, status_code: int, content: bytes, text: str, headers: Optional[dict[str, str]] = None) -> None:
         self.status_code = status_code
         self.content = content
         self.text = text
+        self.headers = headers or {}
 
 
 class DuckDuckGoClient:
@@ -66,7 +67,12 @@ class DuckDuckGoClient:
         with Patch():
             try:
                 resp = self.client.request(*args, **kwargs)
-                return Response(status_code=resp.status_code, content=resp.content, text=resp.text)
+                headers = dict(resp.headers)
+                if resp.status_code == 429:
+                    raise RatelimitException.from_response("DuckDuckGo", headers)
+                return Response(status_code=resp.status_code, content=resp.content, text=resp.text, headers=headers)
+            except RatelimitException:
+                raise
             except Exception as ex:
                 if "timed out" in f"{ex}":
                     msg = f"Request timed out: {ex!r}"

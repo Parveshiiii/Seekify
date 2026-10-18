@@ -9,6 +9,7 @@ from lxml import html
 from lxml.etree import HTMLParser as LHTMLParser
 
 from .client import Client
+from .exceptions import RatelimitException
 from .results import BooksResult, ImagesResult, NewsResult, TextResult, VideosResult
 
 logger = logging.getLogger(__name__)
@@ -63,6 +64,8 @@ class BaseSearchEngine(ABC, Generic[T]):
     def request(self, *args: Any, **kwargs: Any) -> Optional[str]:  # noqa: ANN401
         """Make a request to the search engine."""
         resp = self.client.request(*args, **kwargs)
+        if resp.status_code == 429:
+            raise RatelimitException.from_response(self.name, resp.headers)
         if resp.status_code == 200:
             return resp.text
         return None

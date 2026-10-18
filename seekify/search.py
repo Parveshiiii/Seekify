@@ -2,15 +2,20 @@
 
 import logging
 import os
+import ssl
 from concurrent.futures import ThreadPoolExecutor, wait
 from math import ceil
 from random import random, shuffle
 from types import TracebackType
 from typing import Any, ClassVar, Optional, Union, Type
 
+import httpx
+from lxml import etree
+
 from .base import BaseSearchEngine
 from .engines import ENGINES
-from .exceptions import SearchException, TimeoutException
+from .exceptions import RatelimitException, SearchException, TimeoutException
+from .page_content import fetch_page_text
 from .results import ResultsAggregator
 from .similarity import SimpleFilterRanker
 from .utils import _expand_proxy_tb_alias
@@ -149,6 +154,7 @@ class Search:
         max_results: Optional[int] = 10,
         page: int = 1,
         backend: str = "auto",
+        _sources_by_url: Optional[dict[str, set[str]]] = None,
         **kwargs: str,
     ) -> list[dict[str, Any]]:
         """Perform a search across engines in the given category.
@@ -182,12 +188,14 @@ class Search:
         # Perform search
         # Initialize results and executor
         results_aggregator: ResultsAggregator[set[str]] = ResultsAggregator({"href", "image", "url", "embed_url"})
+        sources_by_url = _sources_by_url if _sources_by_url is not None else {}
         
         # Determine strict number of workers to prevent over-fetching
         max_workers = min(len_unique_providers, ceil(max_results / 10) + 1) if max_results else len_unique_providers
         
         executor = self.get_executor()
         futures, err = {}, None
+        rate_limit_error: Optional[RatelimitException] = None
         for i, engine in enumerate(engines, start=1):
             if engine.provider in seen_providers:
                 continue
@@ -209,10 +217,20 @@ class Search:
                         try:
                             if r := f.result():
                                 results_aggregator.extend(r)
+                                for result in r:
+                                    result_url = next(
+                                        (str(result.__dict__[key]) for key in result.__dict__ if key in results_aggregator.cache_fields),
+                                        "",
+                                    )
+                                    if result_url:
+                                        sources_by_url.setdefault(result_url, set()).add(f_engine.name)
                                 seen_providers.add(f_engine.provider)
+                        except RatelimitException as ex:
+                            rate_limit_error = ex
+                            logger.warning("Engine %s rate limited the search: %s", f_engine.name, ex)
                         except Exception as ex:  # noqa: BLE001
                             err = ex
-                            logger.info("Error in engine %s: %r", engine.name, ex)
+                            logger.info("Error in engine %s: %r", f_engine.name, ex)
                 futures = {f: futures[f] for f in not_done}
 
             # Check if we have enough results to stop
@@ -227,13 +245,97 @@ class Search:
         if results:
             return results[:max_results] if max_results else results
 
+        if rate_limit_error is not None:
+            raise rate_limit_error
         if "timed out" in f"{err}":
             raise TimeoutException(err)
         raise SearchException(err or "No results found.")
 
-    def text(self, query: str, **kwargs: Any) -> list[dict[str, Any]]:  # noqa: ANN401
-        """Perform a text search."""
-        return self._search("text", query, **kwargs)
+    def _format_llm_results(
+        self,
+        query: str,
+        results: list[dict[str, Any]],
+        sources_by_url: dict[str, set[str]],
+        max_pages: int = 5,
+    ) -> dict[str, Any]:
+        """Format ranked text results as a compact, citation-friendly LLM payload."""
+        if isinstance(max_pages, bool) or not isinstance(max_pages, int) or max_pages < 0:
+            raise ValueError("llm_max_pages must be a non-negative integer")
+
+        content_by_url: dict[str, tuple[str, str, Optional[str]]] = {}
+        fetch_results = results[:max_pages]
+        if fetch_results:
+            verify: Union[bool, ssl.SSLContext] = self._verify
+            if isinstance(verify, str):
+                verify = ssl.create_default_context(cafile=verify)
+            with httpx.Client(
+                proxy=self._proxy,
+                timeout=self._timeout,
+                verify=verify,
+                follow_redirects=False,
+                headers={"User-Agent": "Seekify/1.0 (page text extraction)"},
+            ) as client:
+                with ThreadPoolExecutor(
+                    max_workers=min(5, len(fetch_results)),
+                    thread_name_prefix="SeekifyPage",
+                ) as pool:
+                    future_by_url = {
+                        pool.submit(fetch_page_text, client, str(result.get("href") or result.get("url") or "")):
+                        str(result.get("href") or result.get("url") or "")
+                        for result in fetch_results
+                    }
+                    for future, url in future_by_url.items():
+                        try:
+                            content, truncated = future.result()
+                            content_by_url[url] = (content, "truncated" if truncated else "ok", None)
+                        except (httpx.HTTPError, OSError, ValueError, etree.ParserError) as ex:
+                            logger.info("Could not extract page content from %s: %r", url, ex)
+                            content_by_url[url] = ("", "error", f"{type(ex).__name__}: {ex}")
+
+        llm_results = []
+        for rank, result in enumerate(results, start=1):
+            url = str(result.get("href") or result.get("url") or "")
+            snippet = str(result.get("body") or result.get("description") or result.get("content") or "")
+            if rank <= len(fetch_results):
+                content, content_status, content_error = content_by_url[url]
+            else:
+                content, content_status, content_error = "", "not_fetched_limit", None
+
+            item: dict[str, Any] = {
+                "rank": rank,
+                "title": result.get("title", ""),
+                "url": url,
+                "snippet": snippet,
+                "content": content,
+                "content_status": content_status,
+                "sources": sorted(sources_by_url.get(url, set())),
+                "metadata": {
+                    key: value
+                    for key, value in result.items()
+                    if key not in {"title", "href", "url", "body", "description", "content"}
+                },
+            }
+            if content_error:
+                item["content_error"] = content_error
+            llm_results.append(item)
+
+        return {"schema_version": "1.0", "query": query, "results": llm_results}
+
+    def text(
+        self, query: str, *, llm: bool = False, llm_max_pages: int = 5, **kwargs: Any
+    ) -> Union[list[dict[str, Any]], dict[str, Any]]:  # noqa: ANN401
+        """Perform a text search, optionally enriching results for LLM workflows.
+
+        `llm_max_pages` controls how many ranked result pages are fetched when
+        `llm` is True. Set it to zero to return structured search results only.
+        """
+        sources_by_url: dict[str, set[str]] = {}
+        results = self._search("text", query, _sources_by_url=sources_by_url, **kwargs)
+        return (
+            self._format_llm_results(query, results, sources_by_url, max_pages=llm_max_pages)
+            if llm
+            else results
+        )
 
     def images(self, query: str, **kwargs: Any) -> list[dict[str, Any]]:  # noqa: ANN401
         """Perform an image search."""
