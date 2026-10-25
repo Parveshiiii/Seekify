@@ -46,14 +46,16 @@ class Client:
             verify: (Union[bool, str]):  True to verify, False to skip, or a str path to a PEM file. Defaults to True.
 
         """
-        self.client = primp.Client(
+        kwargs = dict(
             proxy=proxy,
             timeout=timeout,
-            impersonate="random",
-            impersonate_os="random",
             verify=verify if isinstance(verify, bool) else True,
             ca_cert_file=verify if isinstance(verify, str) else None,
         )
+        try:
+            self.client = primp.Client(impersonate="random", impersonate_os="random", **kwargs)
+        except Exception:
+            self.client = primp.Client(**kwargs)
 
     def request(self, *args: Any, **kwargs: Any) -> Response:  # noqa: ANN401
         """Make a request, retrying transient connection failures up to three times."""
